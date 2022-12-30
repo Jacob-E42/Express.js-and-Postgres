@@ -28,7 +28,20 @@ router.get("/:id", async (req, res, next) => {
 			[req.params.id]
 		);
 		if (result.rowCount === 0) return next();
-		return res.json({ invoice: result.rows[0] });
+		const data = result.rows[0];
+		const invoice = {
+			id: data.id,
+			amt: data.amt,
+			paid: data.paid,
+			add_date: data.add_date,
+			paid_date: data.paid_date,
+			company: {
+				code: data.code,
+				name: data.name,
+				description: data.description
+			}
+		};
+		return res.json({ invoice: invoice });
 	} catch (err) {
 		return next(err);
 	}
@@ -36,12 +49,11 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
 	try {
-		const result = await db.query(`INSERT INTO companies VALUES ($1, $2, $3) RETURNING *`, [
-			req.body.code,
-			req.body.name,
-			req.body.description
-		]);
-		return res.json({ company: result.rows[0] });
+		const result = await db.query(
+			`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+			[req.body.comp_code, req.body.amt]
+		);
+		return res.json({ invoice: result.rows[0] });
 	} catch (err) {
 		return next(err);
 	}
