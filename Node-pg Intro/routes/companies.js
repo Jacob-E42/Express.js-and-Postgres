@@ -21,4 +21,17 @@ router.get("/:code", async (req, res, next) => {
 	}
 });
 
+router.post("/", async (req, res, next) => {
+	try {
+		const result = await db.query(`INSERT INTO companies VALUES ($1, $2, $3) RETURNING *`, [
+			req.body.code,
+			req.body.name,
+			req.body.description
+		]);
+		return res.json({ company: result.rows[0] });
+	} catch (err) {
+		return next(err);
+	}
+});
+
 module.exports = router;
