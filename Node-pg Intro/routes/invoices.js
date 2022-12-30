@@ -76,9 +76,9 @@ router.put("/:id", async (req, res, next) => {
 	}
 });
 
-router.delete("/:code", async (req, res, next) => {
+router.delete("/:id", async (req, res, next) => {
 	try {
-		const result = await db.query(`DELETE FROM companies * WHERE code=$1 RETURNING code`, [req.params.code]);
+		const result = await db.query(`DELETE FROM invoices * WHERE id=$1 RETURNING id`, [req.params.id]);
 		if (result.rowCount === 0) return next();
 		return res.json({ status: "deleted" });
 	} catch (err) {
