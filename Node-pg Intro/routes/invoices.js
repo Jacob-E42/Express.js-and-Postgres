@@ -50,7 +50,9 @@ router.get("/:id", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
 	try {
 		const result = await db.query(
-			`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+			`INSERT INTO invoices (comp_code, amt)
+             VALUES ($1, $2) 
+             RETURNING id, comp_code, amt, paid, add_date, paid_date`,
 			[req.body.comp_code, req.body.amt]
 		);
 		return res.json({ invoice: result.rows[0] });
