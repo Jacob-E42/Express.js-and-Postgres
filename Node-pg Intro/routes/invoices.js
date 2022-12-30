@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 
+/** GET / => list of invoices.
+ *
+ * =>  {invoices: [{id, comp_code}, ...]}
+ *
+ * */
 router.get("/", async function (req, res, next) {
 	try {
 		const results = await db.query(`SELECT id, comp_code FROM invoices;`);
@@ -11,6 +16,16 @@ router.get("/", async function (req, res, next) {
 	}
 });
 
+/** GET /[id] => detail on invoice
+ *
+ * =>  {invoices: {id,
+ *                amt,
+ *                paid,
+ *                add_date,
+ *                paid_date,
+ *                company: {code, name, description}}}
+ *
+ * */
 router.get("/:id", async (req, res, next) => {
 	try {
 		const result = await db.query(
@@ -47,6 +62,11 @@ router.get("/:id", async (req, res, next) => {
 	}
 });
 
+/** POST / => add new invoice
+ *
+ * {comp_code, amt}  =>  {id, comp_code, amt, paid, add_date, paid_date}
+ *
+ * */
 router.post("/", async (req, res, next) => {
 	try {
 		const result = await db.query(
@@ -61,6 +81,11 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
+/** PUT /[code] => update invoice amount
+ *
+ * {amt}  =>  {id, comp_code, amt, paid, add_date, paid_date}
+ *
+ * */
 router.put("/:id", async (req, res, next) => {
 	try {
 		const result = await db.query(
@@ -76,6 +101,11 @@ router.put("/:id", async (req, res, next) => {
 	}
 });
 
+/** DELETE /[code] => delete invoice
+ *
+ * => {status: "deleted"}
+ *
+ */
 router.delete("/:id", async (req, res, next) => {
 	try {
 		const result = await db.query(`DELETE FROM invoices * WHERE id=$1 RETURNING id`, [req.params.id]);
