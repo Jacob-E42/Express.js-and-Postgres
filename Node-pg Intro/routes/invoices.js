@@ -61,15 +61,16 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
-router.put("/:code", async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
 	try {
-		const result = await db.query(`UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING *`, [
-			req.body.name,
-			req.body.description,
-			req.params.code
-		]);
+		const result = await db.query(
+			`UPDATE invoices SET amt=$1 
+            WHERE id=$2 
+            RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+			[req.body.amt, req.params.id]
+		);
 		if (result.rowCount === 0) return next();
-		return res.json({ company: result.rows[0] });
+		return res.json({ invoice: result.rows[0] });
 	} catch (err) {
 		return next(err);
 	}
