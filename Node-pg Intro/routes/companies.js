@@ -34,4 +34,18 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
+router.put("/:code", async (req, res, next) => {
+	try {
+		const result = await db.query(`UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING *`, [
+			req.body.name,
+			req.body.description,
+			req.params.code
+		]);
+		if (result.rowCount === 0) return next();
+		return res.json({ company: result.rows[0] });
+	} catch (err) {
+		return next(err);
+	}
+});
+
 module.exports = router;
