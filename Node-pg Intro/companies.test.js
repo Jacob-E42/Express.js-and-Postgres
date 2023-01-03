@@ -71,3 +71,10 @@ describe("PUT /companies", function () {
 		});
 	});
 });
+
+describe("DELETE /companies", function () {
+	test("delete an existing company", async function () {
+		const resp = await request(app).delete("/companies/ibm");
+		expect(resp.body).toEqual({ status: "deleted" });
+	});
+});
