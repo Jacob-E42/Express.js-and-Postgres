@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const ExpressError = require("../expressError");
 
 /** GET / => list of invoices.
  *
@@ -81,18 +82,30 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
-/** PUT /[code] => update invoice amount
+/** PUT /[code] => update invoice
  *
- * {amt}  =>  {id, comp_code, amt, paid, add_date, paid_date}
+ * {amt, paid}  =>  {id, comp_code, amt, paid, add_date, paid_date}
  *
+ * If paying unpaid invoice, set paid_date; if marking as unpaid, clear paid_date.
  * */
 router.put("/:id", async (req, res, next) => {
+	const { amt, paid } = req.body;
+	const id = req.params.id;
+	let paidDate;
+
+	let currInvoice = await db.query(`SELECT paid, paid_date FROM 	invoices WHERE id = $1`, [id]);
+	if (currInvoice.rowCount === 0) throw new ExpressError("No such invoice.", 404);
+
+	const currPaidDate = currInvoice.rows[0].paid_date;
+	if (paid && !currPaidDate) paidDate = new Date();
+	else if (!paid) paidDate = null;
+	else paidDate = currPaidDate;
 	try {
 		const result = await db.query(
-			`UPDATE invoices SET amt=$1 
-            WHERE id=$2 
+			`UPDATE invoices SET amt=$1, paid = $2, paid_date = $3
+            WHERE id=$4
             RETURNING id, comp_code, amt, paid, add_date, paid_date`,
-			[req.body.amt, req.params.id]
+			[amt, paid, paidDate, id]
 		);
 		if (result.rowCount === 0) return next();
 		return res.json({ invoice: result.rows[0] });
