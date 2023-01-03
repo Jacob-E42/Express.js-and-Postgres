@@ -36,3 +36,38 @@ describe("GET /companies", function () {
 		});
 	});
 });
+
+describe("POST to /companies", function () {
+	test("add a new company and return it", async function () {
+		const co = {
+			"code": "me",
+			"name": "myself",
+			"description": "I am a company."
+		};
+		const resp = await request(app).post("/companies").send(co);
+		expect(resp.body).toEqual({
+			"company": {
+				"code": "me",
+				"name": "myself",
+				"description": "I am a company."
+			}
+		});
+	});
+});
+
+describe("PUT /companies", function () {
+	test("update an existing company", async function () {
+		const co = {
+			"name": "Real Company",
+			"description": "I am a real company."
+		};
+		const resp = await request(app).put("/companies/ibm").send(co);
+		expect(resp.body).toEqual({
+			"company": {
+				"code": "ibm",
+				"name": "Real Company",
+				"description": "I am a real company."
+			}
+		});
+	});
+});
