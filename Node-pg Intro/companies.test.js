@@ -4,6 +4,12 @@ const request = require("supertest");
 const app = require("./app");
 const db = require("./db");
 
+beforeAll(async function () {
+	await db.query(`DELETE FROM companies_industries *`);
+	await db.query(`DELETE FROM industries *`);
+	await db.query(`DELETE FROM companies *`);
+});
+
 beforeEach(async function () {
 	await db.query(`INSERT INTO companies
 	VALUES ('apple', 'Apple Computer', 'Maker of OSX.'),
